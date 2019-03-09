@@ -48,7 +48,7 @@ numeric_cols=[cname for cname in sparcs_2014.columns if
 
 for columns in numeric_cols:
     sparcs_2014[columns].fillna(0, inplace=True)
-    
+
 text_cols=[cname for cname in sparcs_2014.columns if
            sparcs_2014[cname].dtype not in ['int64', 'float64']]
 
@@ -84,8 +84,8 @@ one_hot_encoded_X=clean(one_hot_encoded_X)
 
 features=list(one_hot_encoded_X.columns)
 #%%
-X_train, X_test, y_train, y_test =train_test_split(one_hot_encoded_X, 
-                                                   y,test_size=0.2, 
+X_train, X_test, y_train, y_test =train_test_split(one_hot_encoded_X,
+                                                   y,test_size=0.2,
                                                    random_state=4)
 
 dump_svmlight_file(X_train, y_train, 'dtrain.svm', zero_based=True)
@@ -100,16 +100,16 @@ param = {
     'max_depth':20,
     'eta':0.01,
     'silent':1,
-    'objective':'multi:softmax', 
+    'objective':'multi:softmax',
     'num_class':4
-    }  
+    }
 #param['eval_metric'] = ['auc']
 num_round = 50  # the number of training iterations
 watchlist = [(dtest_svm,'eval'), (dtrain_svm,'train')]
 
 evals_result = {}
-bst = xgb.train(param,dtrain_svm, 
-                num_round,watchlist, 
+bst = xgb.train(param,dtrain_svm,
+                num_round,watchlist,
                 evals_result=evals_result,
                 early_stopping_rounds=2)
 
