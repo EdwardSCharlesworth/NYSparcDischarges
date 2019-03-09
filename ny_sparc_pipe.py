@@ -31,12 +31,12 @@ def clean(data):
 sparcs_2015=clean(sparcs_2015)
 sparcs_2014=clean(sparcs_2014)
 #2015
-numeric_cols = [cname for cname in sparcs_2015.columns if 
+numeric_cols = [cname for cname in sparcs_2015.columns if
                 sparcs_2015[cname].dtype in ['int64', 'float64']]
 for columns in numeric_cols:
     sparcs_2015[columns].fillna(0, inplace=True)
     
-text_cols = [cname for cname in sparcs_2015.columns if 
+text_cols = [cname for cname in sparcs_2015.columns if
              sparcs_2015[cname].dtype not in ['int64', 'float64']]
 
 for columns in text_cols:
@@ -85,7 +85,7 @@ one_hot_encoded_X=clean(one_hot_encoded_X)
 features=list(one_hot_encoded_X.columns)
 #%%
 X_train, X_test, y_train, y_test =train_test_split(one_hot_encoded_X, 
-                                                   y, test_size=0.2, 
+                                                   y,test_size=0.2, 
                                                    random_state=4)
 
 dump_svmlight_file(X_train, y_train, 'dtrain.svm', zero_based=True)
@@ -98,18 +98,18 @@ dtest_svm = xgb.DMatrix('dtest.svm',
 tests={}
 param = {
     'max_depth':20,
-    'eta': 0.01,
-    'silent': 1,
-    'objective': 'multi:softmax', 
-    'num_class': 4
+    'eta':0.01,
+    'silent':1,
+    'objective':'multi:softmax', 
+    'num_class':4
     }  
 #param['eval_metric'] = ['auc']
 num_round = 50  # the number of training iterations
 watchlist = [(dtest_svm,'eval'), (dtrain_svm,'train')]
 
 evals_result = {}
-bst = xgb.train(param, dtrain_svm, 
-                num_round, watchlist, 
+bst = xgb.train(param,dtrain_svm, 
+                num_round,watchlist, 
                 evals_result=evals_result,
                 early_stopping_rounds=2)
 
@@ -129,8 +129,8 @@ xgb.to_graphviz(bst,size="500,500!")
 
 accuracy_score(y_test, y_score)
 #%%
-X_train,X_test,y_train,y_test=train_test_split(one_hot_encoded_X,y_binary,test_size=0.2,random_state=4)  
-xgtrain = xgb.DMatrix(X_train, label=y_train)
+X_train,X_test,y_train,y_test=train_test_split(one_hot_encoded_X,y_binary,test_size=0.2,random_state=4)
+xgtrain = xgb.DMatrix(X_train,label=y_train)
 clf = xgb.XGBClassifier(objective='binary:logistic',missing=np.nan,max_depth = 20,
                         n_estimators=700,learning_rate=0.01,nthread=8,subsample=1.0,
                         colsample_bytree=0.85,min_child_weight = 3,#reg_lambda=1,reg_alpha=100,
