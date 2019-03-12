@@ -12,7 +12,7 @@ from sklearn.externals import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import dump_svmlight_file
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score,precision_recall_curve,roc_auc_score, roc_curve, average_precision_score
+from sklearn.metrics import f1_score, accuracy_score,precision_recall_curve,roc_auc_score, roc_curve, average_precision_score
 import matplotlib.pyplot as plt
 from sklearn.utils.fixes import signature
 
@@ -107,7 +107,7 @@ param = {
 num_round = 50  # the number of training iterations
 watchlist = [(dtest_svm,'eval'), (dtrain_svm,'train')]
 
-#    simple rules of the road
+#
 #    Underfitting – Validation and training error high
 #
 #    Overfitting – Validation error is high, training error low
@@ -251,35 +251,32 @@ plt.close()
 #%%
 
 #using randomized search
-#from scipy import stats
-#from sklearn.model_selection import RandomizedSearchCV
-#from sklearn.model_selection import ShuffleSplit
-#clf_xgb = xgb.XGBClassifier(objective = 'binary:logistic')
-#param_dist = {'n_estimators': stats.randint(150, 500),
-#              'learning_rate': stats.uniform(0.01, 0.07),
-#              'subsample': stats.uniform(0.3, 0.7),
-#              'max_depth': [3, 4, 5, 6, 7, 8, 9],
-#              'colsample_bytree': stats.uniform(0.5, 0.45),
-#              'min_child_weight': [1, 2, 3]
-#             }
-#clf = RandomizedSearchCV(clf_xgb, param_distributions = param_dist, n_iter = 25, scoring = 'f1', error_score = 0, verbose = 3, n_jobs = -1)
-#
-#rs = ShuffleSplit(n_splits=5, test_size=.25, random_state=0)
-#
-#X=make_df(one_hot_encoded_X)
-#X= pd.DataFrame(one_hot_encoded_X=one_hot_encoded_X[1:,1:],    # values
-#            index=one_hot_encoded_X[1:,0],    # 1st column as index
-#            columns=one_hot_encoded_X[0,1:])
-#estimators = []
-#results = np.zeros(len(X))
-#score = 0.0
-#for train_index, test_index in rs.split(X):
-##    print('Iteration:', i)
-#    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-#    y_train, y_test = y_binary.iloc[train_index], y_binary.iloc[test_index]
-#    clf.fit(X_train, y_train)
-#
-#    estimators.append(clf.best_estimator_)
-#    results[test_index] = clf.predict(X_test)
-#    score += f1_score(y_test, results[test_index])
+from scipy import stats
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import ShuffleSplit
+clf_xgb = xgb.XGBClassifier(objective = 'binary:logistic')
+param_dist = {'n_estimators': stats.randint(150, 500),
+              'learning_rate': stats.uniform(0.01, 0.07),
+              'subsample': stats.uniform(0.3, 0.7),
+              'max_depth': [3, 4, 5, 6, 7, 8, 9],
+              'colsample_bytree': stats.uniform(0.5, 0.45),
+              'min_child_weight': [1, 2, 3]
+             }
+clf = RandomizedSearchCV(clf_xgb, param_distributions = param_dist, n_iter = 25, scoring = 'f1', error_score = 0, verbose = 3, n_jobs = -1)
+
+rs = ShuffleSplit(n_splits=5, test_size=.25, random_state=0)
+new_y_binary = sparcs_2015[['y_binary']] 
+X=one_hot_encoded_X
+estimators = []
+results = np.zeros(len(X))
+score = 0.0
+for train_index, test_index in rs.split(X):
+#    print('Iteration:', i)
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = new_y_binary.iloc[train_index], new_y_binary.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    estimators.append(clf.best_estimator_)
+    results[test_index] = clf.predict(X_test)
+    score += f1_score(y_test, results[test_index])
 #score /= numFolds
