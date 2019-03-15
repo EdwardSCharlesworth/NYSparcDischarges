@@ -62,7 +62,7 @@ sparcs_2015['APR_RISK_OF_MORTALITY'] = sparcs_2015['APR_RISK_OF_MORTALITY'].repl
 le.fit(["Minor", "Moderate", "Major", "Extreme"])
 y = le.transform(sparcs_2015['APR_RISK_OF_MORTALITY'])
 
-equiv_mort = {'Minor':0, 'Moderate':1, 'Major':0, 'Extreme': 0}
+equiv_mort = {'Minor':0, 'Moderate':0, 'Major':0, 'Extreme': 1}
 sparcs_2015['y_binary'] = sparcs_2015['APR_RISK_OF_MORTALITY'].map(equiv_mort)
 y_binary=sparcs_2015['y_binary'].values
 new_y_binary=sparcs_2015['y_binary']
@@ -102,10 +102,10 @@ param_dist = {'silent': [False],
         'colsample_bytree': [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
         'colsample_bylevel': [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
         'min_child_weight': [0.5, 1.0, 3.0, 5.0, 7.0, 10.0],
-        'gamma': [0, 0.25, 0.5, 1.0],
+        'gamma': [0, 0.25, 0.3, 0.4, 0.5, 1.0],
         'reg_lambda': [0.1, 1.0, 5.0, 10.0, 50.0, 100.0],
         'reg_alpha': 2. ** np.arange(-13, 10, 2),
-        'n_estimators': [100]
+        'n_estimators': [100,150,200]
              }
 clf = RandomizedSearchCV(clf_xgb, param_distributions = param_dist, 
                          n_iter = 25, 
@@ -128,6 +128,7 @@ for train_index, test_index in rs.split(one_hot_encoded_X):
     results[test_index] = clf.predict(X_test)
     score.append(f1_score(y_test, results[test_index]))
 
+bst.dump_model('/home/ed/Desktop/dump.raw.txt')
 
 #%%
 X_train, X_test, y_train, y_test = train_test_split(one_hot_encoded_X,
@@ -248,7 +249,7 @@ plt.close()
 #%%
 
 
-clf = joblib.load(r'C:\Users\User\Desktop\long_clf_model.pkl') 
+#clf = joblib.load(r'C:\Users\User\Desktop\long_clf_model.pkl') 
 xgb.plot_importance(clf,max_num_features=10)
 
 xgb.to_graphviz(clf,size="20,20!")
